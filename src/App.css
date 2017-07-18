@@ -10,36 +10,36 @@ body, .app {
 
 /* main page */
 
-.list-books-title {
+.bookshelf-title {
   padding: 10px 0;
   background: #2e7c31;
   text-align: center;
 }
-.list-books-title h1 {
+.bookshelf-title h1 {
   font-weight: 400;
   margin: 0;
   color: white;
 }
 
-.list-books-content {
+.bookshelf-content {
   padding: 0 0 80px;
   flex: 1;
 }
 
-.bookshelf {
+.shelf {
   padding: 0 10px 20px;
 }
 
 @media (min-width: 600px) {
-  .bookshelf {
+  .shelf {
     padding: 0 20px 40px;
   }
 }
 
-.bookshelf-title {
+.shelf-title {
   border-bottom: 1px solid #dedede;
 }
-.bookshelf-books {
+.shelf-books {
   text-align: center;
 }
 
