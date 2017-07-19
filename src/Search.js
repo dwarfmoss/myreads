@@ -5,21 +5,37 @@ import * as BooksAPI from './BooksAPI'
 import Book from './Book'
 
 class Search extends Component {
-  state = {
-    searchResults: [],
-    query: ""
+  constructor(props) {
+    super(props)
+
+    this.updateQuery = this.updateQuery.bind(this)
+    this.handleChange = this.handleChange.bind(this)
+    this.state = {
+      searchResults: [],
+      query: ""
+    }
   }
 
   updateQuery = (query) => {
-    this.setState({ query: query.trim() })
+    this.setState({ query })
   }
 
-  updateSearchResults (query, maxResults) {
-    BooksAPI.search(query, maxResults).then(
-      (books) => {
-        this.setState({ searchResults: books.sort(sortBy("title")) })
-      }
-    )
+  handleChange(event) {
+    this.updateQuery(event.target.value)
+    if(event.target.value !== "") {
+      BooksAPI.search(event.target.value, 20).then(
+        (books) => {
+          if(books.length > 0) {
+            this.setState({ searchResults: books.sort(sortBy("title")) })
+          } else {
+            this.setState({ searchResults: [] })
+          }
+
+        }
+      )
+    } else {
+      this.setState({ searchResults: [] })
+    }
   }
 
   render() {
@@ -33,7 +49,7 @@ class Search extends Component {
           <div className="search-books-input-wrapper">
             <input type="text"
               value={query}
-              onChange={this.updateSearchResults(query, 10)}
+              onChange={this.handleChange}
               placeholder="Search by title or author"
             />
           </div>
