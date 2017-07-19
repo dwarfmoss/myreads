@@ -6,8 +6,10 @@ import * as BooksAPI from './BooksAPI'
 import './App.css'
 
 class BooksApp extends React.Component {
-  state = {
-    books: []
+  constructor(props) {
+    super(props)
+    this.changeShelf = this.changeShelf.bind(this)
+    this.state = { books: [] }
   }
 
   componentDidMount() {
@@ -17,8 +19,10 @@ class BooksApp extends React.Component {
   }
 
   changeShelf (book, shelf) {
-    BooksAPI.update(book, shelf).then((books) => {
-      this.setState({ books })
+    BooksAPI.update(book, shelf).then(() => {
+      BooksAPI.getAll().then((books) => {
+        this.setState({ books })
+      })
     })
   }
 
@@ -31,7 +35,7 @@ class BooksApp extends React.Component {
             changeShelf={this.changeShelf} />
         )} />
         <Route path="/search" render={() => (
-          <Search books={ this.state.books } />
+          <Search changeShelf={this.changeShelf} />
         )} />
       </div>
     )
