@@ -5,41 +5,43 @@ import * as BooksAPI from './BooksAPI'
 import Book from './Book'
 
 class Search extends Component {
-  constructor(props) {
-    super(props)
-
-    this.updateQuery = this.updateQuery.bind(this)
-    this.handleChange = this.handleChange.bind(this)
-    this.state = {
-      searchResults: [],
-      query: ""
-    }
+  state = {
+    searchResults: [],
+    query: ""
   }
 
   updateQuery = (query) => {
     this.setState({ query })
   }
 
-  handleChange(event) {
-    this.updateQuery(event.target.value)
-    if(event.target.value !== "") {
-      BooksAPI.search(event.target.value, 20).then(
-        (books) => {
-          if(books.length > 0) {
-            this.setState({ searchResults: books.sort(sortBy("title")) })
-          } else {
-            this.setState({ searchResults: [] })
-          }
-
+  updateSearchResults = (results) => {
+    var filteredBooks = results.filter((searchBook) => (
+      this.props.books.forEach((bookShelfBook) => {
+        console.log(bookShelfBook.title)
+        console.log(bookShelfBook.id)
+        console.log(searchBook.title)
+        console.log(searchBook.id)
+        if(bookShelfBook.id !== searchBook.id) {
+          return true
+        } else {
+          return false
         }
-      )
-    } else {
-      this.setState({ searchResults: [] })
-    }
+      })
+    ))
+    filteredBooks.map((book) => console.log(book.id))
+    filteredBooks = filteredBooks.map((book) => (book.shelf = "none"))
+    return filteredBooks.concat(this.props.books)
+  }
+
+  handleChange = (event) => {
+    this.updateQuery(event.target.value)
+    BooksAPI.search(event.target.value, 1).then(
+      (books) => this.updateSearchResults(books).sort(sortBy("title"))
+    ).catch((error) => alert(error))
   }
 
   render() {
-    const { changeShelf } = this.props
+    const { books, changeShelf } = this.props
     const { searchResults, query } = this.state
 
     return(
@@ -51,6 +53,7 @@ class Search extends Component {
               value={query}
               onChange={this.handleChange}
               placeholder="Search by title or author"
+              autoFocus
             />
           </div>
         </div>
@@ -60,7 +63,7 @@ class Search extends Component {
               <li key={book.id}>
                 <Book
                   book={book}
-                  changeShelf={changeShelf}/>
+                  changeShelf={changeShelf} />
               </li>
             ))}
           </ol>

@@ -6,11 +6,7 @@ import * as BooksAPI from './BooksAPI'
 import './App.css'
 
 class BooksApp extends React.Component {
-  constructor(props) {
-    super(props)
-    this.changeShelf = this.changeShelf.bind(this)
-    this.state = { books: [] }
-  }
+  state = { books: [] }
 
   componentDidMount() {
     BooksAPI.getAll().then((books) => {
@@ -18,7 +14,7 @@ class BooksApp extends React.Component {
     })
   }
 
-  changeShelf (book, shelf) {
+  changeShelf = (book, shelf) => {
     BooksAPI.update(book, shelf).then(() => {
       BooksAPI.getAll().then((books) => {
         this.setState({ books })
@@ -31,11 +27,15 @@ class BooksApp extends React.Component {
       <div className="app">
         <Route exact path="/" render={() => (
           <Bookshelf
-            books={ this.state.books }
-            changeShelf={this.changeShelf} />
+            books={this.state.books}
+            changeShelf={this.changeShelf}
+          />
         )} />
         <Route path="/search" render={() => (
-          <Search changeShelf={this.changeShelf} />
+          <Search
+            books={this.state.books}
+            changeShelf={this.changeShelf}
+          />
         )} />
       </div>
     )
