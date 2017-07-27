@@ -1,10 +1,16 @@
 import React, { Component } from 'react'
 import { Link } from 'react-router-dom'
+import PropTypes from 'prop-types'
 import sortBy from 'sort-by'
 import * as BooksAPI from './BooksAPI'
 import Book from './Book'
 
 class Search extends Component {
+  static propTypes = {
+    books: PropTypes.array.isRequired,
+    changeShelf: PropTypes.func.isRequired
+  }
+
   state = {
     searchResults: [],
     query: ""
@@ -14,34 +20,32 @@ class Search extends Component {
     this.setState({ query })
   }
 
-  updateSearchResults = (results) => {
-    var filteredBooks = results.filter((searchBook) => (
-      this.props.books.forEach((bookShelfBook) => {
-        console.log(bookShelfBook.title)
-        console.log(bookShelfBook.id)
-        console.log(searchBook.title)
-        console.log(searchBook.id)
-        if(bookShelfBook.id !== searchBook.id) {
-          return true
-        } else {
-          return false
-        }
-      })
-    ))
-    filteredBooks.map((book) => console.log(book.id))
-    filteredBooks = filteredBooks.map((book) => (book.shelf = "none"))
-    return filteredBooks.concat(this.props.books)
+  updateSearchResult = (result, bookShelfBooks) => {
+    result.shelf = "none"
+    bookShelfBooks.forEach((shelfBook) => {
+      if(result.id === shelfBook.id) {
+        result = shelfBook
+      }
+    })
+    return result
   }
 
   handleChange = (event) => {
     this.updateQuery(event.target.value)
-    BooksAPI.search(event.target.value, 1).then(
-      (books) => this.updateSearchResults(books).sort(sortBy("title"))
-    ).catch((error) => alert(error))
+    if(event.target.value !== "") {
+      BooksAPI.search(event.target.value, 1).then(
+        (results) => this.setState({
+          searchResults: results.map((result) =>
+            this.updateSearchResult(result, this.props.books))
+            .sort(sortBy("title"))
+        })
+      )
+      .catch((error) => alert(error))
+    }
   }
 
   render() {
-    const { books, changeShelf } = this.props
+    const { changeShelf } = this.props
     const { searchResults, query } = this.state
 
     return(
