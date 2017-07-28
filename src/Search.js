@@ -20,27 +20,35 @@ class Search extends Component {
     this.setState({ query })
   }
 
-  updateSearchResult = (result, bookShelfBooks) => {
-    result.shelf = "none"
+  updateShelves = (searchedBook, bookShelfBooks) => {
+    searchedBook.shelf = "none"
     bookShelfBooks.forEach((shelfBook) => {
-      if(result.id === shelfBook.id) {
-        result = shelfBook
+      if(searchedBook.id === shelfBook.id) {
+        searchedBook = shelfBook
       }
     })
-    return result
+    return searchedBook
+  }
+
+  formatSearchResults = (results) => (
+    results.map((result) =>
+      this.updateShelves(result, this.props.books))
+      .sort(sortBy("title"))
+  )
+
+  updateSearchResult = (query) => {
+    BooksAPI.search(query, 1).then(
+      (results) => this.setState({
+        searchResults: this.formatSearchResults(results)
+      })
+    )
+    .catch((error) => alert(error))
   }
 
   handleChange = (event) => {
     this.updateQuery(event.target.value)
     if(event.target.value !== "") {
-      BooksAPI.search(event.target.value, 1).then(
-        (results) => this.setState({
-          searchResults: results.map((result) =>
-            this.updateSearchResult(result, this.props.books))
-            .sort(sortBy("title"))
-        })
-      )
-      .catch((error) => alert(error))
+      this.updateSearchResult(event.target.value)
     }
   }
 
