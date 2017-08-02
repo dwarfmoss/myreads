@@ -20,6 +20,16 @@ class Search extends Component {
     this.setState({ query })
   }
 
+  updateShelf = (selectedBook, shelf) => {
+    this.setState(state => {
+      const updatedResults = state.searchResults.map(book => {
+        book.shelf = book.id === selectedBook.id ? shelf : book.shelf
+        return book
+      })
+      return { searchResults: updatedResults }
+    })
+  }
+
   updateShelves = (searchedBook, bookShelfBooks) => {
     searchedBook.shelf = "none"
     bookShelfBooks.forEach((shelfBook) => {
@@ -30,25 +40,31 @@ class Search extends Component {
     return searchedBook
   }
 
-  formatSearchResults = (results) => (
+  formatSearchResults = (results, props) => (
     results.map((result) =>
-      this.updateShelves(result, this.props.books))
+      this.updateShelves(result, props.books))
       .sort(sortBy("title"))
   )
 
   updateSearchResult = (query) => {
     BooksAPI.search(query, 1).then(
-      (results) => this.setState({
-        searchResults: this.formatSearchResults(results)
-      })
+      (results) => results[0] !== undefined ? this.setState((state, props) => {
+        return { searchResults: this.formatSearchResults(results, props) }
+      }) :
+      this.setState({ searchResults: [] })
     )
-    .catch((error) => alert(error))
+    .catch((error) => {
+      this.setState({ searchResults: [] })
+      alert(error)
+    })
   }
 
   handleChange = (event) => {
     this.updateQuery(event.target.value)
     if(event.target.value !== "") {
       this.updateSearchResult(event.target.value)
+    } else {
+      this.setState({ searchResults: [] })
     }
   }
 
@@ -75,7 +91,9 @@ class Search extends Component {
               <li key={book.id}>
                 <Book
                   book={book}
-                  changeShelf={changeShelf} />
+                  changeShelf={changeShelf}
+                  updateSearchBook={this.updateShelf}
+                />
               </li>
             ))}
           </ol>

@@ -9,7 +9,7 @@ class Book extends Component {
   }
 
   render() {
-    const { book, changeShelf } = this.props
+    const { book, changeShelf, updateSearchBook } = this.props
 
     return(
       <div className="book">
@@ -17,11 +17,17 @@ class Book extends Component {
           <div className="book-cover" style={{
             width: 128,
             height: 193,
-            backgroundImage: `url(${book.imageLinks.smallThumbnail})`
+            backgroundImage: `url(${
+              book.imageLinks ?
+              book.imageLinks.smallThumbnail :
+              `http://books.google.com/googlebooks/images/no_cover_thumb.gif`
+            })`
           }}></div>
           <BookShelfChanger
             book={book}
-            changeShelf={changeShelf} />
+            changeShelf={changeShelf}
+            updateSearchBook={updateSearchBook}
+          />
         </div>
         <div className="book-title">{book.title}</div>
         <div className="book-authors">{book.authors &&
